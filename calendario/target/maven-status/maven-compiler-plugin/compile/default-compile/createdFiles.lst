@@ -1,0 +1,8 @@
+com\exam\calendario\services\CalendarioService.class
+com\exam\calendario\models\Calendario.class
+com\exam\calendario\models\Tipo.class
+com\exam\calendario\repositories\CalendarioRepository.class
+com\exam\calendario\dto\FestivoDTO.class
+com\exam\calendario\repositories\TipoRepository.class
+com\exam\calendario\controllers\CalendarioController.class
+com\exam\calendario\CalendarioApplication.class
