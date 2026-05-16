@@ -1,9 +1,13 @@
 version: 0.2
 
 # Variables de entorno que deben ser configuradas en el proyecto CodeBuild en la consola de AWS
+
 # AWS_ACCOUNT_ID: Tu ID de cuenta de AWS (ej: 534224643194)
+
 # AWS_DEFAULT_REGION: us-east-2
+
 # IMAGE_REPO_NAME: api-calendariolaboral (nombre de tu repositorio ECR)
+
 # CONTAINER_NAME: api-calendariolaboral-container (nombre del contenedor en tu task-definition.json)
 
 phases:
@@ -13,7 +17,7 @@ phases:
 
   pre_build:
     commands:
-      - echo Looging in to Amazon ECR...
+      - echo Iniciando sesión en Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
@@ -23,16 +27,19 @@ phases:
 
   build:
     commands:
-      - echo Creando la imagen de la API...
+      - echo Entrando a la carpeta calendario para compilar...
+      - cd calendario
       - mvn clean install -DskipTests
+      - echo Construyendo la imagen de Docker...
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+      - cd ..
 
   post_build:
     commands:
-      - echo Colocando la imagen docker en Amazon ECR...
+      - echo Subiendo la imagen Docker a Amazon ECR...
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Guardar en el archivo de definiciones de la imagen
+      - echo Generando el archivo imagedefinitions.json para ECS...
       - printf '[{"name":"%s","imageUri":"%s"}]' "$CONTAINER_NAME" "$REPOSITORY_URI:$IMAGE_TAG" > imagedefinitions.json
 
 artifacts:
